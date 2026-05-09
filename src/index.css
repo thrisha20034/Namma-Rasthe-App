@@ -1,0 +1,41 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Outfit", sans-serif;
+  
+  --color-primary-900: #1E3A8A;
+  --color-success-500: #10B981;
+  --color-warning-500: #F59E0B;
+}
+
+:root {
+  --background: #F3F4F6;
+  --foreground: #111827;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Custom scrollbar for mobile feel on desktop */
+::-webkit-scrollbar {
+  width: 0px;
+  background: transparent;
+}
+
+.material-card {
+  @apply bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden transition-all duration-300;
+}
+
+.material-button {
+  @apply px-6 py-3 rounded-2xl font-medium transition-all duration-200 active:scale-95 disabled:opacity-50;
+}
+
+.fab {
+  @apply fixed bottom-8 right-6 w-14 h-14 rounded-2xl flex items-center justify-center shadow-lg transition-transform active:scale-90 z-50;
+}

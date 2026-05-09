@@ -1,0 +1,72 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helper Functions ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // --- Reports Collection ---
+    match /reports/{reportId} {
+      allow read: if isSignedIn();
+      
+      allow create: if isSignedIn() 
+        && isValidReport(request.resource.data)
+        && request.resource.data.userId == request.auth.uid;
+
+      allow update: if isSignedIn() && (
+        // Action: Upvote (anyone can increment upvotes by exactly 1)
+        (request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes']) 
+         && request.resource.data.upvotes == resource.data.upvotes + 1)
+        ||
+        // Action: Self-Correction (Owner can edit description only if still submitted)
+        (isOwner(resource.data.userId) 
+         && resource.data.status == 'submitted'
+         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['description']))
+      );
+      
+      allow delete: if false; // Civic reports are permanent records
+    }
+
+    function isValidReport(data) {
+      return data.keys().hasAll(['userId', 'type', 'severity', 'description', 'imageUrl', 'location', 'timestamp', 'status', 'ticketId', 'upvotes'])
+        && data.keys().size() == 10
+        && data.userId is string
+        && data.type in ['pothole', 'road-damage', 'streetlight', 'garbage', 'drainage', 'water-leak', 'other']
+        && data.severity in ['low', 'medium', 'high', 'critical']
+        && data.description is string && data.description.size() <= 1000
+        && data.imageUrl is string && data.imageUrl.size() <= 2000
+        && data.status in ['submitted', 'under-review', 'in-progress', 'resolved']
+        && data.timestamp == request.time.toMillis()
+        && data.upvotes == 0;
+    }
+
+    // --- Users Collection ---
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      
+      allow write: if isOwner(userId)
+        && isValidUser(request.resource.data);
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['displayName', 'points', 'badges', 'joinedAt'])
+        && data.points is number
+        && data.badges is list
+        && data.joinedAt is number;
+    }
+  }
+}

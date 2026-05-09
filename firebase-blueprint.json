@@ -1,0 +1,53 @@
+{
+  "entities": {
+    "Report": {
+      "title": "Civic Infrastructure Report",
+      "description": "Details about a reported civic issue (pothole, streetlight, etc.)",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "UID of the user who reported" },
+        "type": { "type": "string", "enum": ["pothole", "road-damage", "streetlight", "garbage", "drainage", "water-leak", "other"] },
+        "severity": { "type": "string", "enum": ["low", "medium", "high", "critical"] },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "location": {
+          "type": "object",
+          "properties": {
+            "latitude": { "type": "number" },
+            "longitude": { "type": "number" },
+            "address": { "type": "string" }
+          }
+        },
+        "timestamp": { "type": "number" },
+        "status": { "type": "string", "enum": ["submitted", "under-review", "in-progress", "resolved"] },
+        "ticketId": { "type": "string" },
+        "upvotes": { "type": "number" }
+      },
+      "required": ["userId", "type", "severity", "description", "imageUrl", "location", "timestamp", "status", "ticketId"]
+    },
+    "UserProfile": {
+      "title": "User Profile",
+      "description": "Public profile and points for civic participation",
+      "type": "object",
+      "properties": {
+        "displayName": { "type": "string" },
+        "email": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "points": { "type": "number" },
+        "badges": { "type": "array", "items": { "type": "string" } },
+        "joinedAt": { "type": "number" }
+      },
+      "required": ["displayName", "points", "badges", "joinedAt"]
+    }
+  },
+  "firestore": {
+    "reports/{reportId}": {
+      "schema": "Report",
+      "description": "Collection of all civic reports"
+    },
+    "users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Individual user statistics and profiles"
+    }
+  }
+}

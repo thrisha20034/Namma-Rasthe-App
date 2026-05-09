@@ -1,0 +1,13 @@
+{
+  "name": "Remix: Namma-Raste Reporter",
+  "description": "An AI-powered smart civic infrastructure reporting system for smart cities using Gemini AI for automated issue classification and severity assessment.",
+  "requestFramePermissions": [
+    "camera",
+    "geolocation"
+  ],
+  "majorCapabilities": [
+    "AI Image Analysis",
+    "Firebase Backend",
+    "Real-time Tracking"
+  ]
+}
